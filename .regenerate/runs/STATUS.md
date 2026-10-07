@@ -8,6 +8,7 @@
 - Runs: r01 ts 452/452 not clean (3 clarify); r02 ts orphaned by a container restart,
   466/467 (suite bug), not clean (1 clarify). Reference r00.2 387/437 (n/a 31), all explained.
 - Launcher changed after r02: builder starts from an allow-listed environment (PREFLIGHT addendum).
-- Blind runs used: 2 of 6
+- Blind runs used: 3 of 6 (r03 running)
 - Running processes: none
-- Next: r03 (ts, sonnet) on spec-v1.0.2.
+- Running: r03 (ts, sonnet, spec-v1.0.2, sandbox nsbplq) started 22:51Z; launcher PID 2929
+- Next: score r03.
