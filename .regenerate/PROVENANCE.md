@@ -15,6 +15,12 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r00.2 | reference | spec-v1.0.2 | — | earlier TS verifier | finished | 387/437 (n/a 31) | — | — | same explanations; 1 new failure is a new case |
 | r03 | blind | spec-v1.0.2 | claude-sonnet-5-5 | ts | finished | 468/468 | 9/9 | **yes** | first clean run; first with the allow-listed launcher environment; 25 turns, 3.1 min, $0.68 |
 | r04 | blind | spec-v1.0.2 | claude-sonnet-5-5 | py | finished | 468/468 | 28/28 | **yes** | second language clean on the same tag; 17 turns, 3.3 min, $0.63 |
+| r00.3 | reference | spec-v1.0.3 | — | earlier TS verifier | finished | 388/438 (n/a 31) | — | — | same 50 explained failures |
+
+Released: `impl/ts` from r03 and `impl/py` from r04, both at `spec-v1.0.2`. `main` carries
+`spec-v1.0.3`, which adds two open items and a wording fix from r03 and r04 and one case; no
+build has been made from it, and both released implementations pass its suite (469/469, ledger
+rescores).
 
 ## r00: the suite against the earlier verifier
 

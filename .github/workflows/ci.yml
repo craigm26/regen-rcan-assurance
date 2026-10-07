@@ -17,3 +17,23 @@ jobs:
         run: node .regenerate/tools/purity-check.mjs
       - name: Transcript auditor self-test
         run: node .regenerate/tools/audit-selftest.mjs .regenerate/tools/brief-terms.md
+  impl:
+    needs: purity
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lang: [ts, py]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        if: matrix.lang == 'py'
+        with:
+          python-version: '3.11'
+      - name: Build, own tests, and the suite at the promoted spec tag
+        run: node .regenerate/tools/ci-impl.mjs ${{ matrix.lang }}

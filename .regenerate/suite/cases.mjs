@@ -76,6 +76,7 @@ export function buildCases() {
   drv('err-rechash-string', ['REQ-IF-007'], 'recordHash', { record: 'x' });
   drv('err-verify-not-array', ['REQ-IF-007', 'REQ-CH-001'], 'verifyChain', { records: {} });
   drv('err-verify-head-number', ['REQ-IF-007'], 'verifyChain', { records: [], expectedHead: 5 });
+  drv('err-verify-head-null', ['REQ-IF-007'], 'verifyChain', { records: [], expectedHead: null });
   drv('err-audit-no-envelope', ['REQ-IF-007'], 'auditAuthority', { records: [] });
   drv('err-audit-envelope-array', ['REQ-IF-007'], 'auditAuthority', { records: [], envelope: [] });
   drv('err-replay-no-records', ['REQ-IF-007'], 'replay', { envelope: ROVER });

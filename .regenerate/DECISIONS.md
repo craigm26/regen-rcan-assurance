@@ -274,3 +274,21 @@ produced canonical JSON for the same protocol.
   limit differs.
 - Alternatives: pin a depth (for example 1,000) and an error category for exceeding it.
 
+## D-023: The driver may read all of its input before answering
+- Source: r03
+- Context: the third build reads standard input to the end before writing any response, and
+  noted that a caller that waits for each response before sending the next request would hang.
+- Decision: OPEN-IF-005. The suite sends every request, closes standard input, then reads.
+- Why: nothing drives the program interactively, and streaming adds code that no case can
+  tell from batching.
+- Alternatives: require one response per line as soon as the line is read.
+
+## D-024: Sequence numbers above 2^53 are open
+- Source: r04
+- Context: `seq` is a binary64 value (REQ-IF-006), so above 2^53 `seq + 1` can equal `seq`, and
+  a gap there can go unreported. The fourth build pointed this out.
+- Decision: OPEN-CH-002.
+- Why: a chain long enough to need such numbers does not exist, and exact integer arithmetic
+  would contradict REQ-IF-006 for every other number.
+- Alternatives: require exact integer arithmetic for `seq` only.
+

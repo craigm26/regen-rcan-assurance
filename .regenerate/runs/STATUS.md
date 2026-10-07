@@ -3,12 +3,11 @@
 - Project: rcan-assurance (brief: kit/briefs/rcan-assurance.md)
 - Host: Anthropic cloud container (WORKSPACE <WORKSPACE>, SANDBOX_ROOT
   <SANDBOX_ROOT>), because Craig's laptop was running mcp-tape at the same time.
-- Phase: 5 done for r02. Spec tags: spec-v1.0.0 (r00, r01), spec-v1.0.1 (r00.1, r02),
-  spec-v1.0.2 (r00.2).
-- Runs: r01 ts 452/452 not clean (3 clarify); r02 ts orphaned by a container restart,
-  466/467 (suite bug), not clean (1 clarify). Reference r00.2 387/437 (n/a 31), all explained.
-- Launcher changed after r02: builder starts from an allow-listed environment (PREFLIGHT addendum).
-- Blind runs used: 4 of 6 (r04 running); r03 ts clean at spec-v1.0.2
+- Phase: 6 (promote) done; Phase 7 (writeups) next. Tags: spec-v1.0.0 … spec-v1.0.3.
+- Released: impl/ts from r03 and impl/py from r04, both at spec-v1.0.2 (clean runs). main carries
+  spec-v1.0.3 (two open items, one wording fix, one case); both releases pass its suite 469/469.
+- Blind runs used: 4 of 6 (r01 not clean, r02 orphaned, r03 and r04 clean)
+- CI: not run yet (repo not on GitHub). ci-impl.mjs passes locally for ts and py on Linux;
+  py also checked on Python 3.11.17 (28/28 own tests).
 - Running processes: none
-- Running: r04 (py, sonnet, spec-v1.0.2, sandbox qugdzr) started 22:58Z
-- Next: score r04; if clean, promote r03 (ts) and r04 (py) at spec-v1.0.2.
+- Next: WRITEUP.md, README.md, kit/posts/rcan-assurance.md, then the publish gate (Craig types publish).

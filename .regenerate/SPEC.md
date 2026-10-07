@@ -1,7 +1,7 @@
 # assurance-verify: specification
 
 - Program: `assurance-verify`
-- Document version: 1.0.2
+- Document version: 1.0.3
 - Date: 2026-10-07
 
 `assurance-verify` checks the evidence a robot's safety gate leaves behind, as defined by the
@@ -326,7 +326,7 @@ self-intersection are open. A pair's two numbers may be in any order.
 
 | Member | Type | Required | Rule |
 |---|---|---|---|
-| `when` | object | yes | exactly one member, `human_within_m`, a number > 0, required |
+| `when` | object | yes | closed like every object: its only member is `human_within_m`, required, a number > 0 |
 | `max_speed_mps` | number | no | ≥ 0 |
 | `action` | string | no | exactly `stop` |
 
@@ -585,10 +585,14 @@ them.
   mark.
 - **OPEN-IF-004.** Values nested more than 1,000 levels deep, and any request or input file
   that exceeds an implementation's memory or recursion limits.
+- **OPEN-IF-005.** Whether the driver answers a request before it has read the rest of standard
+  input. The suite writes every request, closes standard input, then reads.
 - **OPEN-CJ-001.** Which error category a value gets when it contains both a non-finite number
   and an unpaired surrogate.
 - **OPEN-EV-001.** The order of errors in a `validateEnvelope` result.
 - **OPEN-CH-001.** The presence and text of a finding's `detail` member.
+- **OPEN-CH-002.** Chains whose `seq` values exceed 2^53, where `seq + 1` is no longer exact in
+  binary64.
 - **OPEN-RP-001.** Whether a point is inside a polygon whose edges cross each other, and how
   points closer than 10^-9 to an edge but not exactly on it are classified.
 - **OPEN-CL-001.** Command-line output without `--json`, and all output on exit status 2 or 3.
