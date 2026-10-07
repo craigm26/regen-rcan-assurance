@@ -11,10 +11,20 @@ ALLOWED=( "Read" "Write" "Edit" "Glob" "Grep"
           "${LANG_RULES[@]}" )
 cd "$WORK" || exit 2
 echo $$ > "$META/launcher.pid"
+# The builder starts from an empty environment plus an allow-list: what the CLI needs to reach
+# the model (proxy, CA bundle, API base URL) and, on Windows, to find its own login. Nothing of
+# the orchestrator's session, tokens or cloud credentials is passed on.
+KEEP=(PATH HOME USER LANG LC_ALL TERM TZ TMPDIR
+      HTTPS_PROXY https_proxy HTTP_PROXY http_proxy NO_PROXY no_proxy
+      NODE_EXTRA_CA_CERTS SSL_CERT_FILE ANTHROPIC_BASE_URL CLAUDE_CODE_PROVIDER_MANAGED_BY_HOST
+      SYSTEMROOT SystemRoot USERPROFILE APPDATA LOCALAPPDATA COMSPEC PATHEXT TEMP TMP)
+ENVV=()
+for k in "${KEEP[@]}"; do [ -n "${!k+x}" ] && ENVV+=("$k=${!k}"); done
 # Package managers fail closed even if something tries to fetch.
-export GOPROXY=off GOTOOLCHAIN=local npm_config_offline=true PIP_NO_INDEX=1
+ENVV+=(GOPROXY=off GOTOOLCHAIN=local npm_config_offline=true PIP_NO_INDEX=1)
+printf '%s\n' "${ENVV[@]%%=*}" > "$META/env-names.txt"
 rc=0
-env -u CLAUDECODE -u CLAUDE_CODE_ENTRYPOINT claude -p "$(cat PROMPT.md)" \
+env -i "${ENVV[@]}" claude -p "$(cat PROMPT.md)" \
   --model "$MODEL" \
   --restricted --safe-mode \
   --tools "Read,Write,Edit,Glob,Grep,Bash" \
