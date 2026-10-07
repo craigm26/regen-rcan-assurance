@@ -112,9 +112,10 @@ function check(rule, v, path, errs) {
   switch (rule.kind) {
     case 'object': {
       if (!isObj(v)) return err('type');
-      for (const k of Object.keys(v)) if (!(k in rule.members)) err('unknown_member', at(path, k));
-      for (const k of rule.required) if (!(k in v)) err('required', at(path, k));
-      for (const [k, sub] of Object.entries(rule.members)) if (k in v) check(sub, v[k], at(path, k), errs);
+      // Own members only: `constructor` or `__proto__` in the JSON text is an ordinary name.
+      for (const k of Object.keys(v)) if (!Object.hasOwn(rule.members, k)) err('unknown_member', at(path, k));
+      for (const k of rule.required) if (!Object.hasOwn(v, k)) err('required', at(path, k));
+      for (const [k, sub] of Object.entries(rule.members)) if (Object.hasOwn(v, k)) check(sub, v[k], at(path, k), errs);
       return;
     }
     case 'number':
@@ -156,7 +157,7 @@ function check(rule, v, path, errs) {
     }
     case 'proximityRule': {
       check(PROX, v, path, errs);
-      if (isObj(v) && ('max_speed_mps' in v) === ('action' in v)) err('invalid_value');
+      if (isObj(v) && Object.hasOwn(v, 'max_speed_mps') === Object.hasOwn(v, 'action')) err('invalid_value');
       return;
     }
     default: throw new Error(`unknown rule ${rule.kind}`);
@@ -248,7 +249,7 @@ export function replay(records, envelope) {
     const d = rec.decision;
     if (!DECISIONS.has(d)) { f('UNKNOWN_DECISION'); continue; }
     if (d === 'reject') {
-      if (!('applied' in rec) || rec.applied !== null) f('REJECT_APPLIED');
+      if (!Object.hasOwn(rec, 'applied') || rec.applied !== null) f('REJECT_APPLIED');
     } else if (!isObj(rec.applied)) {
       f('APPLIED_NOT_OBJECT');
     } else {
@@ -276,7 +277,7 @@ export function replay(records, envelope) {
 
 // ---------------------------------------------------------------- driver ops (SPEC § 1.3)
 export function runOp(op, input) {
-  const need = (k, test) => { if (!(k in input) || !test(input[k])) throw new SpecError('bad_request'); };
+  const need = (k, test) => { if (!Object.hasOwn(input, k) || !test(input[k])) throw new SpecError('bad_request'); };
   switch (op) {
     case 'canonical': need('value', () => true); return canonicalBytes(input.value).toString('base64');
     case 'envelopeHash': need('envelope', isObj); return envelopeHash(input.envelope);

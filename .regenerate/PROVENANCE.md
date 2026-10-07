@@ -10,6 +10,7 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r00-port | reference (comparison) | spec-v1.0.0 | — | Python SDK's port of the verifier | finished | 210/265 (n/a 187) | — | — | not the reference; no validator or CLI |
 | r00-sdk-ts | reference (comparison) | spec-v1.0.0 | — | TS SDK's canonical JSON writer | finished | 125/134 (n/a 318) | — | — | canonical cases only |
 | r01 | blind | spec-v1.0.0 | claude-sonnet-5-5 | ts | finished | 452/452 | 11/11 | no | 3 clarify (C-2, C-3, C-5); C-10 exposed a suite bug; 25 turns, 4.1 min, $0.80 |
+| r00.1 | reference | spec-v1.0.1 | — | earlier TS verifier | finished | 387/436 (n/a 31) | — | — | same explanations; 5 new failures are new cases from r01 |
 
 ## r00: the suite against the earlier verifier
 

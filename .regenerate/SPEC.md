@@ -1,7 +1,7 @@
 # assurance-verify: specification
 
 - Program: `assurance-verify`
-- Document version: 1.0.0
+- Document version: 1.0.1
 - Date: 2026-10-07
 
 `assurance-verify` checks the evidence a robot's safety gate leaves behind, as defined by the
@@ -57,9 +57,9 @@ picks the entry for its own platform, else `default`. Example:
 ### 1.2 Driver protocol
 
 **REQ-IF-002.** The driver reads requests from standard input and writes responses to standard
-output. Standard input is UTF-8 text, split into lines at LF (`0x0A`) only: every other
-character, CR (`0x0D`) included, belongs to the line it is in, and CR is JSON whitespace, so a
-line that ends in CR LF is still one JSON object. Each request is one line holding one JSON
+output. Standard input is UTF-8 text (OPEN-IF-003), split into lines at LF (`0x0A`) only:
+every other character, CR (`0x0D`) included, belongs to the line it is in, and CR is JSON
+whitespace, so a line that ends in CR LF is still one JSON object. Each request is one line holding one JSON
 object. For each non-blank request line the driver MUST write exactly one response line holding
 one JSON object, in the same order as the requests. Blank lines (empty, or only spaces, tabs and
 CRs) produce no response. The driver MUST exit with status 0 after standard input reaches end of
@@ -104,6 +104,19 @@ with the next line. Checks happen in this order; the first that applies decides 
 4. The operation needs canonical bytes (§ 2) of a value that contains a non-finite number ⟶
    `non_finite_number`; or an unpaired surrogate ⟶ `invalid_string`. When a value contains
    both, either category is acceptable (OPEN-CJ-001).
+
+Only these values are ever canonicalized, so only they can cause step 4:
+
+| op | values canonicalized |
+|---|---|
+| `canonical` | `value` |
+| `envelopeHash`, `recordHash` | the input object without its removed top-level member |
+| `verifyChain` | each record without its top-level `hash` |
+| `replay` | the envelope without its top-level `signature`; and `applied` and `cmd` of each `allow` record that reaches REQ-RP-001 step 6.4 |
+| `validateEnvelope`, `auditAuthority` | nothing |
+
+A non-finite number or unpaired surrogate anywhere else (in a `clamp` record given to `replay`,
+in a removed `signature`, anywhere in an `auditAuthority` request) is just a value.
 
 Error message text is not part of the contract; only these two members appear.
 
@@ -317,8 +330,10 @@ self-intersection are open. A pair's two numbers may be in any order.
 | `max_speed_mps` | number | no | ≥ 0 |
 | `action` | string | no | exactly `stop` |
 
-In addition, a rule MUST have exactly one of `max_speed_mps` and `action`. A rule with both or
-with neither gets `invalid_value` at the rule's own path, in addition to any other errors.
+In addition, a rule MUST have exactly one of `max_speed_mps` and `action` present, whatever
+their values. A rule with both present or with neither gets `invalid_value` at the rule's own
+path, in addition to any other errors (so `{"when": {"human_within_m": 1}, "action": 5}` gets
+only `type` at `.../action`).
 
 ### 4.4 Uniqueness
 
@@ -447,8 +462,10 @@ in record order, report the following findings, in this order, each as
 - `max_speed_mps` is `envelope.motion.max_speed_mps` and `max_turn_radps` is
   `envelope.motion.max_turn_radps`, each only if it is a number. A bound that is absent is not
   checked.
-- The keep-in polygon is `envelope.workspace.keep_in` if it is a polygon: an array of at least
-  three points. Otherwise there is no keep-in polygon.
+- Here a **polygon** is an array of three or more elements, every one of which is a point (an
+  array of exactly two finite numbers). An array with even one other element is not a polygon.
+- The keep-in polygon is `envelope.workspace.keep_in` if it is a polygon. Otherwise there is no
+  keep-in polygon.
 - The keep-out polygons are the elements of `envelope.workspace.keep_out` (if it is an array)
   that are polygons. Other elements are skipped.
 
@@ -561,6 +578,8 @@ them.
 
 - **OPEN-IF-001.** What the driver and the command line write to standard error.
 - **OPEN-IF-002.** Requests or input files whose JSON objects repeat a member name.
+- **OPEN-IF-003.** Standard input that is not valid UTF-8, or that starts with a byte order
+  mark.
 - **OPEN-CJ-001.** Which error category a value gets when it contains both a non-finite number
   and an unpaired surrogate.
 - **OPEN-EV-001.** The order of errors in a `validateEnvelope` result.

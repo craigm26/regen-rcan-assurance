@@ -251,3 +251,16 @@ produced canonical JSON for the same protocol.
   none, which would turn an envelope report into an operation error. Validation should always
   answer.
 - Alternatives: compare canonical forms of every element (the schema's rule).
+
+## D-021: What the driver does with bytes that are not UTF-8 is open
+- Source: r01
+- Context: the first blind build decoded standard input leniently (invalid bytes become
+  U+FFFD) and asked whether the spec should say what happens to invalid UTF-8 or a byte order
+  mark on standard input.
+- Decision: OPEN-IF-003. The suite only sends valid UTF-8 without a byte order mark. Input files
+  for the command line stay pinned: a file that is not UTF-8 JSON text is bad input (status 3).
+- Why: nothing that drives the program sends such bytes, and a rule for them would only add
+  cases. Files are different, because they come from outside and a verifier must not guess at
+  evidence.
+- Alternatives: `bad_request` with a null `id` for any line that is not valid UTF-8.
+

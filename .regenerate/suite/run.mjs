@@ -220,7 +220,7 @@ function cliCheck(c) {
     for (const [name, text] of Object.entries(c.check.files)) {
       const p = join(dir, ...name.split('/'));
       mkdirSync(dirname(p), { recursive: true });
-      writeFileSync(p, text);
+      writeFileSync(p, typeof text === 'string' ? text : Buffer.from(text.base64, 'base64'));
     }
     const a = c.check.args.map((x, i) => (i === 0 || x.startsWith('--') || c.check.args[i - 1] === '--head' ? x : join(dir, ...x.split('/'))));
     const r = spawnSync(w[0], [...w.slice(1), ...a], { cwd: IMPL, timeout: 60000 });

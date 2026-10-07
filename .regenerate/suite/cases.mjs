@@ -154,6 +154,7 @@ export function buildCases() {
   drv('ha-arm', ['REQ-HA-001', 'REQ-HA-002'], 'envelopeHash', { envelope: ARM });
   drv('ha-no-signature', ['REQ-HA-002'], 'envelopeHash', { envelope: { a: 1 } }, { expect: { kind: 'result', value: 'sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862' } });
   drv('ha-signature-removed', ['REQ-HA-002'], 'envelopeHash', { envelope: { signature: 'x', a: 1 } }, { expect: { kind: 'result', value: 'sha256:015abd7f5cc57a2dd94b7590f04ad8084273905ee33ec5cebeae62276a97f862' } });
+  drv('ha-signature-nonfinite-ignored', ['REQ-HA-002', 'REQ-IF-007'], 'envelopeHash', null, { text: '{"id":"ha-signature-nonfinite-ignored","op":"envelopeHash","input":{"envelope":{"signature":1e400,"a":1}}}' });
   drv('ha-nested-signature-kept', ['REQ-HA-002'], 'envelopeHash', { envelope: { a: { signature: 'x' }, signature: 'y' } });
   drv('ha-envelope-overflow', ['REQ-HA-002', 'REQ-CJ-004'], 'envelopeHash', null, { text: '{"id":"ha-envelope-overflow","op":"envelopeHash","input":{"envelope":{"m":1e400}}}' });
   CHAIN.forEach((r, i) => drv(`ha-record-${i}`, ['REQ-HA-001', 'REQ-HA-003'], 'recordHash', { record: r }, { expect: { kind: 'result', value: r.hash } }));
@@ -189,6 +190,9 @@ export function buildCases() {
     ['authority', (e) => { e.authority.scope = 'x'; }], ['proximity-rule', (e) => { e.proximity[0].note = 'x'; }], ['when', (e) => { e.proximity[0].when.robot_within_m = 1; }]])
     ev(`ev-unknown-${path}`, ['REQ-EV-002'], mut(f));
   ev('ev-unknown-pointer-escape', ['REQ-EV-001', 'REQ-EV-002'], mut((e) => { e['a/b~c'] = 1; }));
+  // Member names that are also names of a language's built-in object members are still just names.
+  ev('ev-unknown-inherited-names', ['REQ-EV-002'], null, { text: sub(JSON.stringify({ id: 'ev-unknown-inherited-names', op: 'validateEnvelope', input: { envelope: ROVER } }), '"envelope":{"envelope_version"', '"envelope":{"constructor":1,"toString":2,"__proto__":3,"envelope_version"') });
+  ev('ev-unknown-inherited-nested', ['REQ-EV-002'], null, { text: sub(JSON.stringify({ id: 'ev-unknown-inherited-nested', op: 'validateEnvelope', input: { envelope: ROVER } }), '"machine":{', '"machine":{"hasOwnProperty":1,') });
   // types
   const typeMuts = [
     ['version-number', (e) => { e.envelope_version = 0.1; }], ['machine-string', (e) => { e.machine = 'rover'; }], ['machine-array', (e) => { e.machine = []; }],
@@ -254,6 +258,8 @@ export function buildCases() {
   ev('ev-prox-within-zero', ['REQ-EV-006'], mut((e) => { e.proximity[0].when.human_within_m = 0; }));
   ev('ev-prox-neither-and-unknown', ['REQ-EV-006', 'REQ-EV-002'], mut((e) => { e.proximity[0] = { when: { human_within_m: 1 }, speed: 0.2 }; }));
   ev('ev-prox-empty-array-ok', ['REQ-EV-006'], mut((e) => { e.proximity = []; }));
+  ev('ev-prox-action-wrong-type', ['REQ-EV-006'], mut((e) => { e.proximity[1].action = 5; }));
+  ev('ev-prox-both-one-wrong-type', ['REQ-EV-006'], mut((e) => { e.proximity[0].action = 'stop'; e.proximity[0].max_speed_mps = 'fast'; }));
   // uniqueness
   ev('ev-unique-dup', ['REQ-EV-007'], mut((e) => { e.authority.required_for = ['motion', 'motion']; }));
   ev('ev-unique-triple', ['REQ-EV-007'], mut((e) => { e.authority.required_for = ['a', 'b', 'a', 'a', 'b']; }));
@@ -322,6 +328,7 @@ export function buildCases() {
   aa('aa-required-for-mixed', ['REQ-AA-001'], one({ authority: null }), (() => { const e = clone(ROVER); e.authority.required_for = [5, 'motion']; return e; })());
   aa('aa-authority-not-object', ['REQ-AA-001'], one({ authority: null }), (() => { const e = clone(ROVER); e.authority = ['motion']; return e; })());
   aa('aa-gripper-arm', ['REQ-AA-001', 'REQ-AA-002'], [...one({ cmd: { kind: 'gripper' }, authority: null }), { seq: 1, decision: 'clamp', principal: '', authority: 'jwt:2', cmd: { kind: 'wave' } }, { seq: 2, decision: 'clamp', principal: '', authority: null, cmd: { kind: 'motion' } }], ARM);
+  drv('aa-nonfinite-ignored', ['REQ-AA-001', 'REQ-IF-007'], 'auditAuthority', null, { text: sub(JSON.stringify({ id: 'aa-nonfinite-ignored', op: 'auditAuthority', input: { records: one({ authority: null, extra: 5 }), envelope: ROVER } }), '"extra":5', '"extra":1e400,"note":"\\ud800"') });
 
   // ------------------------------------------------------------ replay (§ 7)
   const rp = (id, reqs, records, envelope = ROVER, opts) => drv(id, reqs, 'replay', { records, envelope }, opts);
@@ -352,12 +359,21 @@ export function buildCases() {
   rp('rp-keep-out-edge', ['REQ-RP-003'], [Z([3, 1.5]), Z([1, 1], 1), Z([4, 3], 2)], ZONES);
   rp('rp-keep-out-clear', ['REQ-RP-003'], [Z([5.5, 0.5]), Z([0.5, 3.5], 1)], ZONES);
   rp('rp-keep-out-skips-non-polygon', ['REQ-RP-002'], [Z([0.5, 0])], ZONES);
+  const BADZ = (() => { const e = clone(ROVER); e.workspace.keep_out = [[[0, 0], [2, 0], [2, 2], [0]]]; return e; })();
+  rp('rp-keep-out-bad-element', ['REQ-RP-002'], [R({ decision: 'clamp', reason: 'r', envelope: O.envelopeHash(BADZ), applied: { kind: 'motion', target: [1, 1] } })], BADZ);
+  const BADIN = (() => { const e = clone(ROVER); e.workspace.keep_in = [[0, 0], [6, 0], [6, 4], ['0', 4]]; return e; })();
+  rp('rp-keep-in-bad-element', ['REQ-RP-002'], [R({ decision: 'clamp', reason: 'r', envelope: O.envelopeHash(BADIN), applied: { kind: 'motion', target: [9, 9] } })], BADIN);
   rp('rp-keep-in-not-polygon', ['REQ-RP-002'], [R({ decision: 'clamp', reason: 'r', envelope: '', applied: { kind: 'motion', target: [99, 99] } })], (() => { const e = clone(ROVER); e.workspace.keep_in = [[0, 0], [1, 1]]; return e; })());
   rp('rp-concave-keep-in', ['REQ-RP-003'], (() => { const pts = [[2, 1], [2, 3], [0.5, 2], [5.5, 2]]; return pts.map((t, i) => R({ seq: i, decision: 'clamp', reason: 'r', envelope: '', applied: { kind: 'motion', target: t } })); })(),
     (() => { const e = clone(ROVER); e.workspace.keep_in = [[0, 0], [6, 0], [6, 4], [3, 1], [0, 4]]; return e; })());
   rp('rp-target-not-point', ['REQ-RP-001'], [clampR({ target: [99] }), clampR({ target: ['99', 1] }, { seq: 1 }), clampR({ target: [99, 1, 0] }, { seq: 2 }), clampR({ target: { x: 99, y: 1 } }, { seq: 3 })]);
   rp('rp-stop-with-motion', ['REQ-RP-001'], [R({ decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', linear_mps: 0.1, angular_radps: 0 } })]);
   rp('rp-stop-with-turn', ['REQ-RP-001'], [R({ decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', angular_radps: -0.2 } })]);
+  rp('rp-stop-both-motion', ['REQ-RP-001'], [R({ decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', linear_mps: 0.1, angular_radps: 0.2 } })]);
+  rp('rp-speed-infinite', ['REQ-RP-001', 'REQ-RP-004', 'REQ-IF-007'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-speed-infinite', op: 'replay', input: { records: [clampR({ linear_mps: 7 })], envelope: ROVER } }), '"linear_mps":7', '"linear_mps":1e400') });
+  rp('rp-lazy-reject-nonfinite', ['REQ-RP-001', 'REQ-IF-007'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-lazy-reject-nonfinite', op: 'replay', input: { records: [R({ decision: 'reject', reason: 'r', applied: null })], envelope: ROVER } }), '"linear_mps":0.2', '"linear_mps":1e400') });
+  rp('rp-allow-nonfinite-error', ['REQ-RP-001', 'REQ-IF-007'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-allow-nonfinite-error', op: 'replay', input: { records: [R({ applied: { kind: 'motion', linear_mps: 0.3 } })], envelope: ROVER } }), '"linear_mps":0.3', '"linear_mps":1e400') });
+  rp('rp-allow-not-object-lazy', ['REQ-RP-001', 'REQ-IF-007'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-allow-not-object-lazy', op: 'replay', input: { records: [R({ applied: null })], envelope: ROVER } }), '"linear_mps":0.2', '"linear_mps":1e400') });
   rp('rp-stop-still', ['REQ-RP-001'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-stop-still', op: 'replay', input: { records: [R({ decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', linear_mps: 0, angular_radps: 0.0 } }), R({ seq: 1, decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop' } })], envelope: ROVER } }), '"linear_mps":0,', '"linear_mps":-0.0,') });
   rp('rp-stop-ignores-bounds', ['REQ-RP-001'], [R({ decision: 'stop', reason: 'r', applied: { kind: 'stop', linear_mps: 0, target: [99, 99] } })]);
   rp('rp-reject-applied-object', ['REQ-RP-001'], [R({ decision: 'reject', reason: 'r', applied: {} })]);
@@ -373,6 +389,7 @@ export function buildCases() {
   rp('rp-allow-bool-vs-number', ['REQ-RP-001', 'REQ-RP-004'], [R({ cmd: { ...R({}).cmd, lamp: true }, applied: { ...R({}).applied, lamp: 1 } })]);
   rp('rp-unchecked-wrong-type', ['REQ-RP-004'], [clampR({ linear_mps: '0.4', angular_radps: null, target: [1] }), R({ seq: 1, decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', linear_mps: 0, target: [1, 1] } })]);
   rp('rp-unchecked-utf16-order', ['REQ-RP-004'], [clampR({ '\ue000': 1, '\u{1F600}': 2, Z: 3, a: 4 })]);
+  rp('rp-unchecked-inherited-names', ['REQ-RP-004'], null, undefined, { text: sub(JSON.stringify({ id: 'rp-unchecked-inherited-names', op: 'replay', input: { records: [clampR({ zz: 1 })], envelope: ROVER } }), '"zz":1', '"constructor":1,"__proto__":2,"toString":3') });
   rp('rp-missing-reason', ['REQ-RP-001'], [clampR({}, { reason: undefined }), R({ seq: 1, decision: 'reject', applied: null, reason: '' }), R({ seq: 2, decision: 'stop', applied: { kind: 'stop' }, reason: 5 }), R({ seq: 3 })].map((r) => JSON.parse(JSON.stringify(r))));
   rp('rp-unknown-decision', ['REQ-RP-001'], [R({ decision: 'escalate', envelope: 'sha256:x', reason: undefined }), (() => { const r = R({ seq: 1 }); delete r.decision; return r; })(), R({ seq: 2, decision: 'ALLOW' })].map((r) => JSON.parse(JSON.stringify(r))));
   rp('rp-unchecked-fields', ['REQ-RP-004'], [clampR({ gripper: 1, z_m: 0.1 }), clampR({ z_m: 0.2, joint: [1, 2] }, { seq: 1 }), R({ seq: 2, decision: 'stop', reason: 'r', cmd: null, applied: { kind: 'stop', brake: true } })]);
@@ -434,6 +451,11 @@ export function buildCases() {
   cli('cl-input-envelope-array', ['REQ-CL-002', 'REQ-CL-003'], ['verify', 'chain.json', 'e.json'], { 'chain.json': J(CHAIN), 'e.json': '[]' }, { expect: { exit: 3 }, na: ['reference'] });
   cli('cl-input-overflow', ['REQ-CL-002', 'REQ-CL-003'], ['verify', 'o.json'], { 'o.json': sub(J(CHAIN), `"t": ${CHAIN[0].t}`, '"t": 1e999') }, { expect: { exit: 3 }, na: ['reference'] });
   cli('cl-input-envelope-missing-file', ['REQ-CL-003'], ['verify', 'chain.json', 'none.json'], { 'chain.json': J(CHAIN) }, { expect: { exit: 3 }, na: ['reference'] });
+  // One byte that is not UTF-8 inside a string: strict decoding is bad input (3); lenient decoding would
+  // change the record and give a hash mismatch (1).
+  const utfText = J(CHAIN), utfAt = utfText.indexOf('user:operator-01');
+  const [utfA, utfB] = [utfText.slice(0, utfAt), utfText.slice(utfAt + 'user:operator-01'.length)];
+  cli('cl-input-invalid-utf8', ['REQ-CL-002', 'REQ-CL-003'], ['verify', 'u.json'], { 'u.json': { base64: Buffer.concat([Buffer.from(utfA, 'utf8'), Buffer.from('user:operator-\xff1', 'latin1'), Buffer.from(utfB, 'utf8')]).toString('base64') } }, { expect: { exit: 3 }, na: ['reference'] });
 
   return cases;
 }
