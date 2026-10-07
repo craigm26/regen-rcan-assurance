@@ -1,0 +1,7 @@
+{
+  "_comment": "Copied from kit/briefs/rcan-assurance.md § Leak check and audit. Identifiers always fail (case-insensitive). Symbols fail (case-sensitive) unless allowlisted. Contract terms (RCAN, rcan.dev, Appendix C, gate_decision, envelope_version, on_loss, the envelope and record field names, sha256:) are allowed and appear in no list here.",
+  "identifiers": ["rcan-spec", "rcan-ts", "rcan-py", "evidence-chain", "RobotRegistryFoundation", "github.com/RobotRegistryFoundation", "OpenCastor"],
+  "symbols": ["GENESIS_PREV", "replayAgainstEnvelope"],
+  "allow": [],
+  "allowedDomains": []
+}

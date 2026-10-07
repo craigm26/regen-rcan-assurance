@@ -1,0 +1,6 @@
+bin/
+node_modules/
+__pycache__/
+*.pyc
+dist/
+.regenerate/suite/adapters/*/local.json

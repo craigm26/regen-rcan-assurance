@@ -1,0 +1,19 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  purity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Purity check
+        run: node .regenerate/tools/purity-check.mjs
+      - name: Transcript auditor self-test
+        run: node .regenerate/tools/audit-selftest.mjs .regenerate/tools/brief-terms.md
