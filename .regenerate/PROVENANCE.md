@@ -9,6 +9,7 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r00 | reference | spec-v1.0.0 | — | earlier TS verifier via adapter | finished | 378/422 (n/a 30) | — | — | all 44 failures explained (below) |
 | r00-port | reference (comparison) | spec-v1.0.0 | — | Python SDK's port of the verifier | finished | 210/265 (n/a 187) | — | — | not the reference; no validator or CLI |
 | r00-sdk-ts | reference (comparison) | spec-v1.0.0 | — | TS SDK's canonical JSON writer | finished | 125/134 (n/a 318) | — | — | canonical cases only |
+| r01 | blind | spec-v1.0.0 | claude-sonnet-5-5 | ts | finished | 452/452 | 11/11 | no | 3 clarify (C-2, C-3, C-5); C-10 exposed a suite bug; 25 turns, 4.1 min, $0.80 |
 
 ## r00: the suite against the earlier verifier
 
@@ -72,3 +73,6 @@ canonical JSON". The suite ran against both as comparison subjects (not as the r
   lone surrogates) or a check Appendix C describes and nobody wrote. The two SDK subjects show
   the same thing from the other side: three implementations that each claim to match the others
   agree on the 12 published vectors and on little past them.
+- r01: a clean pass of every case is not a clean run. The build matched the spec everywhere the
+  suite looked, and its notes still found three places where a second builder could read the
+  spec differently, plus one place where the suite's own model was wrong.
