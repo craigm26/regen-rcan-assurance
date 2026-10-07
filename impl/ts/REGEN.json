@@ -1,0 +1,5 @@
+{"lang":"ts",
+ "build":"",
+ "test":{"default":"node --test"},
+ "driver":{"default":"node driver.ts"},
+ "cli":{"default":"node verify.ts"}}
