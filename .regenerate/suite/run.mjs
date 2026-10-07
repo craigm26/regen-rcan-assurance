@@ -195,8 +195,16 @@ function staticCheck(test) {
     if (regen.lang === 'ts') {
       for (const r of files.filter((f) => exts.includes(extname(f)))) {
         const t = readFileSync(join(IMPL, r), 'utf8');
-        for (const m of t.matchAll(/(?:from\s+|import\s*\(\s*|require\s*\(\s*)['"]([^'"]+)['"]/g))
-          if (!/^(\.|node:)/.test(m[1])) return `${r} imports ${m[1]}`;
+        // Statements, not text: a static import or export-from at the start of a line, a
+        // dynamic import(), or require(). A regex or string that mentions `from '…'` is not an
+        // import (r02's own tests contained one).
+        const specs = [
+          ...t.matchAll(/^\s*(?:import|export)\b[^'"`;]*?\bfrom\s*['"]([^'"\n]+)['"]/gm),
+          ...t.matchAll(/^\s*import\s*['"]([^'"\n]+)['"]/gm),
+          ...t.matchAll(/\bimport\s*\(\s*['"]([^'"\n]+)['"]\s*\)/g),
+          ...t.matchAll(/\brequire\s*\(\s*['"]([^'"\n]+)['"]\s*\)/g),
+        ];
+        for (const m of specs) if (!/^(\.|node:)/.test(m[1])) return `${r} imports ${m[1]}`;
       }
       return null;
     }

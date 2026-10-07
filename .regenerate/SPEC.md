@@ -1,7 +1,7 @@
 # assurance-verify: specification
 
 - Program: `assurance-verify`
-- Document version: 1.0.1
+- Document version: 1.0.2
 - Date: 2026-10-07
 
 `assurance-verify` checks the evidence a robot's safety gate leaves behind, as defined by the
@@ -421,7 +421,10 @@ count as "not a non-empty string"). The result is `{"findings": [...]}`.
 ## 7. Replay
 
 `replay` checks every record against the envelope it claims to have been decided under, and
-checks what each decision applied to the actuators. Appendix C defines the four decisions:
+checks what each decision applied to the actuators. In this section "a number" is any binary64
+value, infinity included: the finite rule of REQ-EV-003 belongs to validation (§ 4). So
+`"linear_mps": 1e400` is a number, is judged, and exceeds any bound. A point is different: it
+needs two finite numbers. Appendix C defines the four decisions:
 
 | decision | meaning | `applied` |
 |---|---|---|
@@ -580,6 +583,8 @@ them.
 - **OPEN-IF-002.** Requests or input files whose JSON objects repeat a member name.
 - **OPEN-IF-003.** Standard input that is not valid UTF-8, or that starts with a byte order
   mark.
+- **OPEN-IF-004.** Values nested more than 1,000 levels deep, and any request or input file
+  that exceeds an implementation's memory or recursion limits.
 - **OPEN-CJ-001.** Which error category a value gets when it contains both a non-finite number
   and an unpaired surrogate.
 - **OPEN-EV-001.** The order of errors in a `validateEnvelope` result.

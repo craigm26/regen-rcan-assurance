@@ -20,6 +20,7 @@ const BAD = [
   ['Bash', { command: 'cat ~/.ssh/id_rsa' }],
   ['Bash', { command: 'head ../other/w/SPEC.md' }],
   ['Bash', { command: 'node -e \'console.log(require("fs").readFileSync("../../_canary.txt","utf8"))\'' }],
+  ['Bash', { command: 'node -e "console.log(require(\'fs\').readFileSync(\'/etc/passwd\',\'utf8\'))"' }],
   ['Read', { file_path: join(root, '..', 'x.txt') }],
   ['Glob', { pattern: '../**/*.md' }],
 ];
@@ -29,6 +30,7 @@ const GOOD = [
   ['Bash', { command: "sed -i 's/% ((CLK,) \\* 8)/% ((CLK,) * 7)/' test_heat.py 2>/dev/null || true" }], // r04
   ['Bash', { command: "cat > canon.ts <<'EOF'\n// comment\nexport function f(x: number): string { return String(x); }\nEOF" }], // r01
   ['Bash', { command: 'node -e \'let s=require("fs").readFileSync("driver.ts","utf8"); s=s.replace(/^/, "")\'' }], // r03
+  ['Bash', { command: 'node -e "\nconst fs=require(\'fs\');let s=fs.readFileSync(\'lib.ts\',\'utf8\');\ns=s.replace(\'// deno-lint-ignore no-explicit-any\\n\',\'\');\nfs.writeFileSync(\'lib.ts\',s)"' }], // r02
   ['Read', { file_path: join(work, 'SPEC.md') }],
   ['Write', { file_path: join(work, 'lib', 'a.ts'), content: 'import x from "./b.ts";' }],
 ];

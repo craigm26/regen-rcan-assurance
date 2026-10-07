@@ -93,6 +93,7 @@ export function buildCases() {
   drv('shape-seq-fraction', ['REQ-CH-001'], 'verifyChain', { records: withRec(2, { seq: 2.5 }) });
   drv('shape-seq-string', ['REQ-CH-001'], 'verifyChain', { records: withRec(2, { seq: '2' }) });
   drv('shape-seq-bool', ['REQ-CH-001'], 'verifyChain', { records: withRec(0, { seq: true }) });
+  drv('shape-seq-infinite', ['REQ-CH-001', 'REQ-IF-006'], 'verifyChain', null, { text: sub(JSON.stringify({ id: 'shape-seq-infinite', op: 'verifyChain', input: { records: CHAIN } }), '"seq":5,', '"seq":1e400,') });
   drv('shape-seq-missing', ['REQ-CH-001'], 'verifyChain', { records: drop(2, 'seq') });
   drv('shape-prev-missing', ['REQ-CH-001'], 'verifyChain', { records: drop(3, 'prev') });
   drv('shape-hash-number', ['REQ-CH-001'], 'verifyChain', { records: withRec(1, { hash: 1 }) });

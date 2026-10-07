@@ -3,10 +3,11 @@
 - Project: rcan-assurance (brief: kit/briefs/rcan-assurance.md)
 - Host: Anthropic cloud container (WORKSPACE <WORKSPACE>, SANDBOX_ROOT
   <SANDBOX_ROOT>), because Craig's laptop was running mcp-tape at the same time.
-- Phase: 4 done for r01. Phase 2 done. r00 recorded (378/422, n/a 30, all 44 failures explained), plus two comparison
-  subjects (r00-port 210/265, r00-sdk-ts 125/134). Tagged spec-v1.0.0.
-- Last run: r01 (ts, spec-v1.0.0): 452/452, own tests 11/11, not clean (3 clarify)
-- Blind runs used: 1 of 6
+- Phase: 5 done for r02. Spec tags: spec-v1.0.0 (r00, r01), spec-v1.0.1 (r00.1, r02),
+  spec-v1.0.2 (r00.2).
+- Runs: r01 ts 452/452 not clean (3 clarify); r02 ts orphaned by a container restart,
+  466/467 (suite bug), not clean (1 clarify). Reference r00.2 387/437 (n/a 31), all explained.
+- Launcher changed after r02: builder starts from an allow-listed environment (PREFLIGHT addendum).
+- Blind runs used: 2 of 6
 - Running processes: none
-- Spec-v1.0.1 tagged (from r01: 3 clarifications, OPEN-IF-003, suite fix, 15 new cases); r00.1 387/436.
-- Next: r02 (ts) on spec-v1.0.1.
+- Next: r03 (ts, sonnet) on spec-v1.0.2.

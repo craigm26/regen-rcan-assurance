@@ -11,6 +11,8 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r00-sdk-ts | reference (comparison) | spec-v1.0.0 | — | TS SDK's canonical JSON writer | finished | 125/134 (n/a 318) | — | — | canonical cases only |
 | r01 | blind | spec-v1.0.0 | claude-sonnet-5-5 | ts | finished | 452/452 | 11/11 | no | 3 clarify (C-2, C-3, C-5); C-10 exposed a suite bug; 25 turns, 4.1 min, $0.80 |
 | r00.1 | reference | spec-v1.0.1 | — | earlier TS verifier | finished | 387/436 (n/a 31) | — | — | same explanations; 5 new failures are new cases from r01 |
+| r02 | blind | spec-v1.0.1 | claude-sonnet-5-5 | ts | **orphaned** | 466/467 (468/468 after the suite fix) | 15/15 | no | container restarted during its last command; 1 clarify (C-10); the one failure was a suite bug |
+| r00.2 | reference | spec-v1.0.2 | — | earlier TS verifier | finished | 387/437 (n/a 31) | — | — | same explanations; 1 new failure is a new case |
 
 ## r00: the suite against the earlier verifier
 
@@ -77,3 +79,6 @@ canonical JSON". The suite ran against both as comparison subjects (not as the r
 - r01: a clean pass of every case is not a clean run. The build matched the spec everywhere the
   suite looked, and its notes still found three places where a second builder could read the
   spec differently, plus one place where the suite's own model was wrong.
+- r02: the method's weak points were outside the spec this time: the host (a restart), the
+  launcher (the builder inherited the orchestrator's environment) and the suite (a dependency
+  scan that read a regular expression as an import). Each is now fixed and has a test.

@@ -264,3 +264,13 @@ produced canonical JSON for the same protocol.
   evidence.
 - Alternatives: `bad_request` with a null `id` for any line that is not valid UTF-8.
 
+## D-022: Resource limits are open
+- Source: r02
+- Context: the second blind build answered `bad_request` when very deep nesting overflowed its
+  stack, and noted that no error category fits an internal failure.
+- Decision: OPEN-IF-004. The suite never nests values more than a few levels deep. Evidence
+  records and envelopes are shallow by their nature.
+- Why: a pinned limit would be a number nothing depends on, and every language's recursion
+  limit differs.
+- Alternatives: pin a depth (for example 1,000) and an error category for exceeding it.
+

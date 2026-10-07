@@ -40,11 +40,12 @@ if (tools !== 'Bash,Edit,Glob,Grep,Read,Write') initProblems.push(`tools ${tools
 if ((init.mcp_servers ?? []).length) initProblems.push(`mcp_servers ${JSON.stringify(init.mcp_servers)}`);
 if (init.permissionMode !== 'dontAsk') initProblems.push(`permissionMode ${init.permissionMode}`);
 if (!new RegExp(`^claude-${family}-`).test(init.model ?? '')) initProblems.push(`model ${init.model} is not a resolved ${family} id`);
-// The CLI may write bookkeeping lines (active_goal, autocompact_state) before init, so init must
-// be the first system event, with no assistant or tool event before it.
+// The CLI may write bookkeeping lines (active_goal, autocompact_state, ui_invalidate) before
+// init. What matters: exactly one init line, and no assistant or tool event before it.
+const firstActor = lines.findIndex((l) => l.type === 'assistant' || l.type === 'user');
 if (!init.type) initProblems.push('no init line');
-else if (lines.find((l) => l.type === 'system') !== init) initProblems.push('init is not the first system event');
-else if (lines.findIndex((l) => l.type === 'assistant' || l.type === 'user') >= 0 && lines.findIndex((l) => l.type === 'assistant' || l.type === 'user') < lines.indexOf(init)) initProblems.push('an assistant or tool event precedes init');
+else if (lines.filter((l) => l.type === 'system' && l.subtype === 'init').length !== 1) initProblems.push('more than one init line');
+else if (firstActor >= 0 && firstActor < lines.indexOf(init)) initProblems.push('an assistant or tool event precedes init');
 
 // ---------- walk tool calls
 const pathViolations = [], netViolations = [], codeHostHits = [], pipedCommands = [];
@@ -111,6 +112,8 @@ for (const l of lines) {
         bodies.push(code);
         for (const lit of code.matchAll(/(["'`])((?:\\.|(?!\1).)*)\1/g)) {
           const v = lit[2];
+          // A JS or C-style comment, or text with an escaped newline, is not a path (r02).
+          if (/^\/\//.test(v) || /\\n/.test(v)) continue;
           if (/[\\/]/.test(v) || v === '..' || /^(~|\$HOME|%USERPROFILE%)/i.test(v)) {
             const why = /^https?:/i.test(v) ? null : outside(v);
             if (why) pathViolations.push({ tool: 'Bash inline script', arg: v, command: full.slice(0, 300), why });
@@ -138,7 +141,8 @@ for (const h of codeHostHits) netViolations.push({ ...h, rule: 'code-host addres
 
 // ---------- (c) denied calls
 const result = [...lines].reverse().find((l) => l.type === 'result') ?? null;
-const denied = result?.permission_denials?.length ?? 0;
+// A run with no result line (killed or orphaned) still has its permission_denied events.
+const denied = result ? (result.permission_denials?.length ?? 0) : lines.filter((l) => l.type === 'system' && l.subtype === 'permission_denied').length;
 
 const report = {
   transcript: transcriptPath,
