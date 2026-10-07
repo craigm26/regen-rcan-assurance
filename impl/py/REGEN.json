@@ -1,0 +1,5 @@
+{"lang":"py",
+ "build":"",
+ "test":   {"win32":"py -3 -m unittest -q", "default":"python3 -m unittest -q"},
+ "driver": {"win32":"py -3 driver.py",      "default":"python3 driver.py"},
+ "cli":    {"win32":"py -3 cli.py",         "default":"python3 cli.py"}}
