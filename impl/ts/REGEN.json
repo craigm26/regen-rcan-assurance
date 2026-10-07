@@ -1,0 +1,1 @@
+{"lang":"ts","build":"","test":"node --test","driver":"node driver.ts","cli":"node verify.ts"}
