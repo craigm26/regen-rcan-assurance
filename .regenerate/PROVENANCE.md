@@ -14,6 +14,7 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r02 | blind | spec-v1.0.1 | claude-sonnet-5-5 | ts | **orphaned** | 466/467 (468/468 after the suite fix) | 15/15 | no | container restarted during its last command; 1 clarify (C-10); the one failure was a suite bug |
 | r00.2 | reference | spec-v1.0.2 | — | earlier TS verifier | finished | 387/437 (n/a 31) | — | — | same explanations; 1 new failure is a new case |
 | r03 | blind | spec-v1.0.2 | claude-sonnet-5-5 | ts | finished | 468/468 | 9/9 | **yes** | first clean run; first with the allow-listed launcher environment; 25 turns, 3.1 min, $0.68 |
+| r04 | blind | spec-v1.0.2 | claude-sonnet-5-5 | py | finished | 468/468 | 28/28 | **yes** | second language clean on the same tag; 17 turns, 3.3 min, $0.63 |
 
 ## r00: the suite against the earlier verifier
 
@@ -85,3 +86,5 @@ canonical JSON". The suite ran against both as comparison subjects (not as the r
   scan that read a regular expression as an import). Each is now fixed and has a test.
 - r03: the first clean run came on the third version of the spec. By then the spec answered, or
   deliberately left open, every question the earlier builds had asked.
+- r04: the Python build avoided every trap the earlier Python port fell into (`NaN` accepted,
+  exact integers, code-point order) because the spec names them.
