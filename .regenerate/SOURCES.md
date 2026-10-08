@@ -82,7 +82,8 @@ Copied byte for byte from rcan-spec @ `16fc1a4` (the repo marks them `-text`):
 
 License: rcan-spec's README puts specification text under CC BY 4.0 and reference
 implementations under MIT, and does not say which covers fixtures. This repo treats them as CC BY
-4.0 and attributes them in README.md. **Craig to confirm before publishing.**
+4.0 and attributes them in README.md. Craig confirmed that reading before publication
+(2026-10-07).
 
 ## Extraction evidence (re-checked from the brief's scoping notes)
 

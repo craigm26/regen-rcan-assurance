@@ -94,3 +94,12 @@ canonical JSON". The suite ran against both as comparison subjects (not as the r
   deliberately left open, every question the earlier builds had asked.
 - r04: the Python build avoided every trap the earlier Python port fell into (`NaN` accepted,
   exact integers, code-point order) because the spec names them.
+
+## Publication
+
+Published 2026-10-08 (UTC) at <https://github.com/craigm26/regen-rcan-assurance>. The repository
+was created private with every branch and tag, and made public after CI run 37712961722 passed on
+`main` at `40d62b5` (ubuntu-latest, Node v22.23.3, Python 3.11): the purity check found `impl/ts`
+equal to r03's tree and `impl/py` equal to r04's, both at `spec-v1.0.2`; the auditor self-test
+passed 17/17; `impl/ts` passed its 9 own tests and the suite 468/468; `impl/py` passed its 28 own
+tests and the suite 468/468.

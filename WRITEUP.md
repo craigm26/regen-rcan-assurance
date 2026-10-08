@@ -11,7 +11,7 @@ agents who were shown only the specification. The code under `impl/` is output. 
 `.regenerate/` are what I maintain.
 
 The layout follows Carson Farmer's `.regenerate/` convention
-([iroh-acp-go](https://github.com/carsonfarmer/iroh-acp-go); [Craig: link to Carson's post]).
+([iroh-acp-go](https://github.com/carsonfarmer/iroh-acp-go)).
 The four things a regenerable system needs (a spec, an evaluation that can judge any version, a
 limit on what the builder sees, and a record of how each version was made) come from Chad
 Fowler's [writing on regenerative software](https://chadfowler.com/regenerative-software/).
@@ -26,8 +26,7 @@ a signal is not proof.
 A third-party verifier is only worth something if a third party can rebuild it and get the same
 verdicts. That is regenerability by definition. It is also unforgiving: one byte of difference
 in canonical JSON changes every hash downstream. So the spec has to be exact about
-serialization and can be quiet about almost everything else. [Craig: why this one matters to
-you beyond that, e.g. its relation to your own RCAN work.]
+serialization and can be quiet about almost everything else.
 
 ## 3. What I wrote down
 
@@ -141,7 +140,7 @@ Four blind runs out of the six allowed, plus two isolation checks:
   checks. The orphaned run's cost was not recorded.
 - **Builders:** `claude-sonnet-5-5`, 17 to 25 turns, about three to five minutes each.
 - **Orchestrating session:** extraction, suite, triage and this writeup took far longer than
-  the builds. [Craig: the orchestrator's cost, if you want it here.]
+  the builds. Their cost is not in the ledger.
 
 ## 9. The checklist
 
@@ -158,8 +157,7 @@ Four blind runs out of the six allowed, plus two isolation checks:
 
 ## 10. What's next
 
-- [Craig: whether to file the upstream note on canonical JSON (`kit/posts/rcan-upstream-note.md`).]
+- Report the canonical-JSON findings in section 5 to rcan-spec. A note is drafted and not filed.
 - Add the suite's canonical cases to the protocol's test vectors, so the SDKs are held to more
   than 12.
 - Build a third language, or try a smaller model against the same tag.
-- [Craig: anything about using this verifier on real gate logs.]
