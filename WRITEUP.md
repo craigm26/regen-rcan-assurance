@@ -90,7 +90,7 @@ both SDKs "emit byte-identical canonical JSON". I ran the suite's canonical case
 
 The Python SDK also contains a hand port of the verifier that says it matches the TypeScript
 one "so the two verifiers agree on the same chain". On 265 shared cases their verdicts differ on
-25. The full note is drafted for upstream, not filed.
+25. The note is now filed upstream (section 10).
 
 ## 6. What the rebuilds found
 
@@ -152,12 +152,18 @@ Four blind runs out of the six allowed, plus two isolation checks:
 | P4 | The suite ran against the reference first; every failure explained | r00 to r00.3: 44, 49, 50 and 50 failures, each mapped to a decision |
 | P5 | Builders saw only SPEC, DECISIONS and PROMPT; clean audits | Leak check before each launch; audits with 0 violations; isolation test in PREFLIGHT.md. Caveat: before r03 the builder's environment was not cleared (section 6) |
 | P6 | Promoted builds come from clean runs on their tag | r03 and r04 at `spec-v1.0.2`, `clean: true` in the ledger |
-| P7 | Every run is in the ledger, failures included | r00 to r00.3, r00-port, r00-sdk-ts, r01 to r04 (r02 orphaned), rescores, promotions |
+| P7 | Every run is in the ledger, failures included | r00 to r00.3, r00-port, r00-sdk-ts, r01 to r04 (r02 orphaned), rescores, promotions, and the upstream checks `upstream.1`, `upstream.1-ts`, `upstream.1-port` |
 | P8 | Every number here traces to the ledger or a run file | Runs table from `ledger.jsonl`; sizes from the tag; comparisons from PROVENANCE.md |
 
 ## 10. What's next
 
-- Report the canonical-JSON findings in section 5 to rcan-spec. A note is drafted and not filed.
-- Add the suite's canonical cases to the protocol's test vectors, so the SDKs are held to more
-  than 12.
+- The canonical-JSON findings in section 5 are filed as
+  [RobotRegistryFoundation/rcan-spec#223](https://github.com/RobotRegistryFoundation/rcan-spec/issues/223),
+  with pull requests for the spec and reference verifier (#224, a draft until the comment period
+  ends, and #225), for rcan-ts (#55, #56) and for rcan-py (#66, a draft, and #67). None is
+  merged. With each pair merged locally and an adapter copy that maps their new errors to the
+  suite's codes, the suite passes 438/438 against the verifier, 431/431 against rcan-ts and
+  277/277 against rcan-py's port (ledger `upstream.1`, `upstream.1-ts`, `upstream.1-port`).
+- rcan-spec#224 would take the protocol's canonical test vectors from 12 to 17, plus six inputs
+  that must fail. The rest of the suite's canonical cases are not proposed.
 - Build a third language, or try a smaller model against the same tag.

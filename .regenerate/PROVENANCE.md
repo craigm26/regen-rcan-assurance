@@ -16,6 +16,9 @@ How every version of this program was made. Machine-readable record: `ledger.jso
 | r03 | blind | spec-v1.0.2 | claude-sonnet-5-5 | ts | finished | 468/468 | 9/9 | **yes** | first clean run; first with the allow-listed launcher environment; 25 turns, 3.1 min, $0.68 |
 | r04 | blind | spec-v1.0.2 | claude-sonnet-5-5 | py | finished | 468/468 | 28/28 | **yes** | second language clean on the same tag; 17 turns, 3.3 min, $0.63 |
 | r00.3 | reference | spec-v1.0.3 | — | earlier TS verifier | finished | 388/438 (n/a 31) | — | — | same 50 explained failures |
+| upstream.1 | upstream | spec-v1.0.3 | — | earlier TS verifier with rcan-spec#224 and #225, merged locally | finished | 438/438 (n/a 31) | — | — | every failure of r00.3 passes; adapter copy (below) |
+| upstream.1-ts | upstream (comparison) | spec-v1.0.3 | — | TS SDK with rcan-ts#55 and #56, merged locally | finished | 431/431 (n/a 38) | — | — | its master scores 380/431 through the same adapter copy |
+| upstream.1-port | upstream (comparison) | spec-v1.0.3 | — | Python SDK's port with rcan-py#66 and #67, merged locally | finished | 277/277 (n/a 192) | — | — | its main scores 215/277 |
 
 Released: `impl/ts` from r03 and `impl/py` from r04, both at `spec-v1.0.2`. `main` carries
 `spec-v1.0.3`, which adds two open items and a wording fix from r03 and r04 and one case; no
@@ -76,6 +79,29 @@ canonical JSON". The suite ran against both as comparison subjects (not as the r
   and its language puts index-like names (`"9"`, `"10"`) first.
 - All three pass the protocol's 12 canonical vectors. Of the suite's 110 canonical cases, the
   verifier passes 102, the TypeScript SDK 101, and the port 91.
+
+## upstream.1: the fixes proposed upstream
+
+On 2026-10-08 (UTC) the findings above were filed as
+[RobotRegistryFoundation/rcan-spec#223](https://github.com/RobotRegistryFoundation/rcan-spec/issues/223),
+with pull requests that propose the fixes: rcan-spec#224 (the canonical JSON rules and more test
+vectors; a draft, because the change is normative and waits for the foundation's comment period)
+and #225 (the verifier's missing decision-table and type checks), rcan-ts#55 and #56, and
+rcan-py#66 (a draft for the same reason) and #67. None was merged when this was written.
+
+Each pair, merged locally, through this suite at `spec-v1.0.3` on Linux:
+
+- the reference verifier: 438/438 (n/a 31), against 388/438 for r00.3;
+- the TypeScript SDK, its canonical JSON writer and its port of the verifier: 431/431 (n/a 38;
+  it has no verifier command line), against 380/431 for its `master`;
+- the Python SDK's port: 277/277 (n/a 192), against 215/277 for its `main`.
+
+The fixed code raises explicit errors for values with no canonical form and for malformed
+records, so each run used a copy of its adapter, not committed, that maps those errors to the
+suite's codes: `CanonicalJsonError` and `RCANEncodingError` by their code, and the `TypeError`
+for malformed records to `bad_request`. The TypeScript SDK's verifier is async, so its adapter
+copy also awaits it; its `master` was scored through the same copy. Ledger: `upstream.1`,
+`upstream.1-ts`, `upstream.1-port`.
 
 ## What each run taught
 

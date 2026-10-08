@@ -10,8 +10,11 @@
 - CI: run 37712961722 on main (40d62b5), ubuntu-latest: purity ok (r03, r04 @ spec-v1.0.2),
   auditor self-test 17/17, ts 9 own tests and 468/468, py 28 own tests and 468/468.
 - Running processes: none
-- Done: WRITEUP.md, README.md, kit/posts/rcan-assurance.md, kit/posts/rcan-upstream-note.md (not filed),
+- Done: WRITEUP.md, README.md, kit/posts/rcan-assurance.md, kit/posts/rcan-upstream-note.md (filed as rcan-spec#223),
   publish-gate scan (history rewritten to drop container paths and the private repo name; all
   ledger IDs re-verified), publication record in PROVENANCE.md.
 - Decided by Craig (2026-10-07): fixtures treated as CC BY 4.0 and attributed; `publish`.
-- Open: whether to file the upstream note.
+- Upstream: filed 2026-10-08 (UTC) as RobotRegistryFoundation/rcan-spec#223, with PRs
+  rcan-spec#224 (draft) and #225, rcan-ts#55 and #56, rcan-py#66 (draft) and #67; none merged.
+  Each pair merged locally passes this suite: 438/438, 431/431, 277/277 (ledger upstream.1,
+  upstream.1-ts, upstream.1-port; PROVENANCE).
